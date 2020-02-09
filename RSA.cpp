@@ -21,7 +21,7 @@ string decode(int key1, int key2,  char *charkey, string fileName);
 
 int main(int argc, char** argv ) {
 	string input = "0";
-	char characterKey[KEY_LENGTH] = { '~', '~', 'a','b', 'c',  'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' , ' '};
+	char characterKey[KEY_LENGTH] = { '~', '~', 'A','B', 'C',  'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' , ' '};
 	
 	
 	string fileName = argv[4];
