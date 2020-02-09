@@ -1,9 +1,7 @@
 #include <iostream>
 #include <string>
 #include <stdlib.h>
-#include <time.h>
-#include <math.h>
-#include <cstdint>
+#include <fstream>
 
 
 using std::cout;
@@ -11,107 +9,81 @@ using std::cin;
 using std::endl;
 using std::string;
 using std::to_string;
+using std::ofstream;
+using std::ifstream;
 
 const int KEY_LENGTH = 29;
 
 
-double gcd(double a, double b);
-long long int myPow(long long int x, long long int p);
-void encode(double key1, double key2, char *charKey);
-string decode(double key1, double key2, string message, char *charkey);
+int mod(int a, int b, int c);
+void encode(int key1, int key2, char *charKey, string fileName);
+string decode(int key1, int key2,  char *charkey, string fileName);
 
 int main() {
 	char input = '0';
 	char characterKey[KEY_LENGTH] = { '~', '~', 'a','b', 'c',  'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
 							'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' , ' '};
-	string secretMessage;
-	double key1 = 13;
-	double key2 = 77;
+	
+	
+	string fileName;
+	int key1;
+	int key2;
+	cout << "enter the first part of your public key" << endl << "->>> ";
+	cin >> key1;
 
-	//run menu
-	while (input == '0' || input == '1' || input == '2' || input == '3') {
+	cout << "enter the second part of your public key" << endl << "->>> ";
+	cin >> key2;
 
-		cout << "Menu" << endl;
-		cout << "0. exit" << endl << "1. encode" << endl << "2. decode" << endl << "3. break" << endl;
-		cout << "->>> ";
+	cin >> input;
 
-		cin >> input;
-
-		if (input == '0')
-			break;
-
-		else if (input == '1')
-			encode(key1, key2, characterKey);
-
-		else if (input == '2') {
-			cout << "input the first part of the decryption key" << endl;
-			cout << "-->>";
-			cin >> key1;
-
-			cout << "input the second part of the decryption key" << endl;
-			cout << "-->>";
-			cin >> key2;
-
-			cout << "input your encrypted message with each number separated by one space" << endl;
-			cout << "-->> ";
-			cin.ignore();
-			std::getline(cin, secretMessage);
-
-			cout << "your message is :" << endl;
-			cout << decode(key1, key2, secretMessage, characterKey);
-			cout << endl << "--------------------------------------" << endl << endl;
+	if (input == 'e') {
+	cout << "enter file name: " << endl << "-->> ";
+	cin >> fileName;
+	encode(key1, key2, characterKey, fileName);
 		}
-		
-
-
+	else if (input == 'd') {
+		cout << "file name: " << endl;
+		cout << "-->> ";
+		cin >> fileName;
+		decode(key1, key2, characterKey, fileName);
 	}
-
-
 	return 0;
 }
 
-double gcd(double a, double b){
+int mod(int a, int b, int c) {
+	//solves a^b mod(c)
+	
+	int result;
+	int a2 = a * a;
+	int a1 = a;
 
-	//return if a or b is zero
-	if (a == 0)
-		return b;
-	if (b == 0)
-		return a;
 
-	// base case 
-	if (a == b)
-		return a;
+	if (b % 2 == 1){
+		result = a % c;
+		b--;
+		result = result % c;
+	}
+	else {
+		result = a2 % c;
+		b -= 2;
+		result = result % c;
+	}
+	while (b != 0) {
+		result *= a2 % c;
+		b -= 2;
+		result = result % c;
+	}
 
-	//recurse
-	if (a > b)
-		return gcd(a - b, b);
-	return gcd(a, b - a);
+	return result % c;
 }
 
-long long int myPow( long long int x, long long int p) {
-	if (p == 0) return 1;
-	if (p == 1) return x;
-	return x * myPow(x, p - 1);
-}
-
-void encode(double key1, double key2, char *charKey) {
+void encode(int key1, int key2, char *charKey, string fileName) {
 	string input;
 
-	//variables nessicary for RSA encoding
-	double prime1;
-	double prime2;
-	double phi;
-	double publicKey1;
-	double publicKey2;
-	double privateKey1;
-	double privateKey2;
+	ifstream infile(fileName);
 
-
-	cout << "enter a sentence you would like to encode" << endl;
-	cout << "-->> ";
-
-	cin.ignore();
-	std::getline(cin, input);
+	std::getline(infile, input);
+	infile.close();
 
 	int *encoded = new int[input.length()];
 
@@ -126,45 +98,38 @@ void encode(double key1, double key2, char *charKey) {
 		}
 
 	}
-	
 
-	//calculating vairables for RSA
-
-	//get the first part of the public key
-	
-	/*publicKey1 = 2;
-	while (publicKey1 < phi) {
-		if (gcd(publicKey1, phi) == 1)
-			break;
-		else
-			publicKey1++;
-	}*/
-
-	//give public key
-	
-
-	//generate the first part of the private key
 
 
 	//encode message
-	long long int temp;
 	for (int i = 0; i < input.length(); i++) {
-		temp = myPow ((long long int)encoded[i], (long long int)key1);
-		encoded[i] = temp % (long long int)key2;
+		encoded[i] = mod(encoded[i], key1, key2);
 	}
 
-	//print encoded message in a whitespace separeted list
-	cout << "your encoded message: " << endl;
-	for (int i = 0; i < input.length(); i++)
-		cout << encoded[i] << ' ';
+	ofstream outfile("incrypted.txt");
 
-	cout << endl << "---------------------------------------" << endl << endl;
+
+	//print encoded message in a whitespace separeted list
+	for (int i = 0; i < input.length(); i++) {
+		outfile << encoded[i];
+		if (i != input.length() - 1)
+			outfile << ' ';
+	}
+	outfile.close();
+
+	cout << "\"incrypted.txt\"" << endl;
 }
 
-string decode(double key1, double key2, string message, char *charKey) {
+string decode(int key1, int key2,  char *charKey, string fileName) {
 
 	int prime[14] = {2,3,5,7,11,13,17,19,23,29,31,37,41,43}; //allows the calculation of N's up to 1763
+	string message;
 
+	ifstream infile(fileName);
+
+	std::getline(infile, message);
+	infile.close();
+	
 	//break N and find d
 	int p;
 	int q;
@@ -172,8 +137,8 @@ string decode(double key1, double key2, string message, char *charKey) {
 	for (int i = 0; i < 14; i++) {
 		for (int j = 0; j < 14; j++) {
 			if (prime[i] * prime[j] == key2) {
-				p = i;
-				q = j;
+				p = prime[i];
+				q = prime[j];
 			}
 
 		}
@@ -183,9 +148,8 @@ string decode(double key1, double key2, string message, char *charKey) {
 
 	//find d
 	int d = 2;
-	while ((phi * d + 1) / key1 != 1)
+	while ((d * key1) % phi != 1)
 		d++;
-	cout << "d is: " << d << endl;
 
 
 	int termNumber = 0;
@@ -218,13 +182,13 @@ string decode(double key1, double key2, string message, char *charKey) {
 	}
 	//decode
 
-	d = 37;
-	__int128 temp;
 	for (int i = 0; i < termIndex; i++) {
-		temp = myPow((long long int)terms[i], (long long int)d);
-		cout << temp << endl;
-		terms[i] = (int)(temp % (long long int)key2);
+		terms[i] = mod(terms[i], d, key2);
 	}
+
+	cout << "p = " << p << ", q = " << q << ", \"decrypted.txt\"" << endl;
+
+	ofstream outfile("decrypted.txt");
 	//turn decoded numbers into chars and append them to decoded
 	decoded = charKey[(int)terms[0]];
 	string toAppend;
@@ -232,6 +196,8 @@ string decode(double key1, double key2, string message, char *charKey) {
 		toAppend = charKey[(int)terms[i]];
 		decoded.append(toAppend);
 	}
+	outfile << decoded;
+	outfile.close();
 	
 	return decoded;
 }
