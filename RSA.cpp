@@ -105,7 +105,7 @@ void encode(int key1, int key2, char *charKey, string fileName) {
 	}
 	outfile.close();
 
-	cout << "\"incrypted.txt\"" << endl;
+	//cout << "\"incrypted.txt\"" << endl;
 }
 
 string decode(int key1, int key2,  char *charKey, string fileName) {
@@ -174,7 +174,7 @@ string decode(int key1, int key2,  char *charKey, string fileName) {
 		terms[i] = mod(terms[i], d, key2);
 	}
 
-	cout << "p = " << p << ", q = " << q << ", \"decrypted.txt\"" << endl;
+	//cout << "p = " << p << ", q = " << q << ", \"decrypted.txt\"" << endl;
 
 	ofstream outfile("decrypted.txt");
 	//turn decoded numbers into chars and append them to decoded
